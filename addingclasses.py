@@ -37,9 +37,7 @@ class Activation_Softmax:
 
 class Loss:
     def calculate(self, output, y):
-        sample_losses = self.forward(output, y)
-        data_loss = np.mean(sample_losses)
-        return data_loss
+        return np.mean(self.forward(output, y))
 
 class Loss_CategoricalCrossEntropy(Loss):
 
@@ -51,11 +49,12 @@ class Loss_CategoricalCrossEntropy(Loss):
         #if 1d labels ie [2,0,1]
         if len(y_true.shape) == 1:
             #from each row grab confidence value for true val
+            #for 2d array you can input 2 arrays of indexes
             correct_confidences = clipped_pred[range(num_samples), y_true]
 
         #if 2d labels ie [[0,0,1],[1,0,0],[0,1,0]]
         elif len(y_true.shape) == 2:
-            #arr*arr does not do matrix multiplication? use np.dot
+            #arr*arr does not do matrix multiplication? use np.dot? or maybe only in sum
             correct_confidences = np.sum(clipped_pred*y_true, axis=1)
 
         return -np.log(correct_confidences)
@@ -75,10 +74,10 @@ dense2.forward(activation1.output)
 activation2.forward(dense2.output)
 loss = loss_calculator.calculate(activation2.output, y)
 
+print(loss_calculator.forward(activation2.output, y))
 print(loss)
 
 predictions = np.argmax(activation2.output, axis=1)
-print(predictions)
 if len(y.shape) == 2:
     y = np.argmax(y, axis=1)
 accuracy = np.mean(predictions == y)
